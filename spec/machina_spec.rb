@@ -16,23 +16,32 @@ describe Machina do
   end
 
   it "complex" do
-    Post = Struct.new(:title, :notified)
+    Post = Struct.new(:title, :notified, :published)
 
-    post = Post.new("Something HN worthy", false)
+    post = Post.new("Something HN worthy", false, false)
+    completed = false
 
     fsm.when[:send_notification] = -> (post) { post.notified = true }
+    fsm.when[:published] = -> (post) { post.published = true }
 
     fsm[:complete] = {
-      :start  => [:review, :send_notification, :final],
-      :review => [:send_notification, :final],
+      :start  => [:review, :send_notification, :published],
+      :review => [:send_notification, :published],
       :reset  => :start
     }
 
+    fsm.on[:complete] = -> (*) { completed = true }
+
     assert_equal :start, fsm.state
+    assert_equal false, completed
+    assert_equal false, post.notified
+    assert_equal false, post.published
 
     fsm.trigger(:complete, post)
 
-    assert_equal :final, fsm.state
+    assert_equal :published, fsm.state
+    assert_equal true, completed
     assert_equal true, post.notified
+    assert_equal true, post.published
   end
 end
