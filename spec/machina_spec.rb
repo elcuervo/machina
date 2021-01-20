@@ -16,19 +16,23 @@ describe Machina do
   end
 
   it "complex" do
-    reached_step2 = false
+    Post = Struct.new(:title, :notified)
 
-    fsm.on[:step2] = -> { reached_step2 = true }
+    post = Post.new("Something HN worthy", false)
 
-    fsm[:complex] = {
-      :start => [:step1, :step2, :final]
+    fsm.when[:send_notification] = -> (post) { post.notified = true }
+
+    fsm[:complete] = {
+      :start  => [:review, :send_notification, :final],
+      :review => [:send_notification, :final],
+      :reset  => :start
     }
 
     assert_equal :start, fsm.state
 
-    fsm.trigger(:complex)
+    fsm.trigger(:complete, post)
 
     assert_equal :final, fsm.state
-    assert_equal true, reached_step2
+    assert_equal true, post.notified
   end
 end

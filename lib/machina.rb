@@ -8,15 +8,15 @@ class Machina
     @state
   end
 
-  def trigger(event)
+  def trigger(event, *args)
     Array(@events[event][@state]).each do |state|
       @state = state
-      on[@state].call
+      self.when[@state].call(*args)
     end
   end
 
-  def on
-    @on ||= Hash.new { |h, k| h[k] = -> {} }
+  def when
+    @when ||= Hash.new { |h, k| h[k] = -> (*args) {} }
   end
 
   def []=(key, states)
