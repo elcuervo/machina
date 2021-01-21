@@ -1,29 +1,33 @@
+# frozen_string_literal: true
+
 class Machina
+  attr_reader :state
+
   def initialize(initial_state)
     @state = initial_state
     @events = Hash.new { |h, k| h[k] = [] }
   end
 
-  def state
-    @state
-  end
-
   def trigger(event, *args)
-    Array(@events[event][@state]).each do |state|
-      @state = state
+    Array(@events[event][state]).each do |candidate_state|
+      begin
+        self.when[candidate_state].call(*args)
+      rescue StandardError
+        break
+      end
 
-      self.when[@state].call(*args)
+      @state = candidate_state
     end
 
     on[event].call(*args)
   end
 
   def on
-    @on ||= Hash.new { |h, k| h[k] = -> (*args) {} }
+    @on ||= Hash.new { |h, k| h[k] = ->(*args) {} }
   end
 
   def when
-    @when ||= Hash.new { |h, k| h[k] = -> (*args) {} }
+    @when ||= Hash.new { |h, k| h[k] = ->(*args) {} }
   end
 
   def []=(key, states)

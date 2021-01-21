@@ -3,6 +3,8 @@ require "spec_helper"
 describe Machina do
   attr_reader :fsm
 
+  Post = Struct.new(:title, :notified, :published)
+
   before { @fsm = Machina.new(:start) }
 
   it "basic" do
@@ -16,8 +18,6 @@ describe Machina do
   end
 
   it "complex" do
-    Post = Struct.new(:title, :notified, :published)
-
     post = Post.new("Something HN worthy", false, false)
     completed = false
 
@@ -30,7 +30,7 @@ describe Machina do
       :reset  => :start
     }
 
-    fsm.on[:complete] = -> (*) { completed = true }
+    fsm.on[:complete] = -> (_post) { completed = true }
 
     assert_equal :start, fsm.state
     assert_equal false, completed
@@ -43,5 +43,17 @@ describe Machina do
     assert_equal true, completed
     assert_equal true, post.notified
     assert_equal true, post.published
+  end
+
+  it "trigger!" do
+    fsm.when[:stop] = -> { raise }
+
+    fsm[:act] = {
+      :start => [:a, :b, :stop, :final]
+    }
+
+    fsm.trigger(:act)
+
+    assert_equal :b, fsm.state
   end
 end
