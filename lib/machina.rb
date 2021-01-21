@@ -12,7 +12,7 @@ class Machina
   end
 
   def trigger(event, *args)
-    return if !trigger?(event)
+    return unless trigger?(event)
 
     Array(events[event][state]).each do |candidate_state|
       begin
@@ -28,13 +28,13 @@ class Machina
   end
 
   def trigger!(event, *args)
-    raise InvalidStateChangeError, "Event #{event} missing #{state} step" if !trigger?(event)
+    raise InvalidStateChangeError, "Event #{event} missing #{state} step" unless trigger?(event)
 
     trigger(event, *args)
   end
 
   def trigger?(event)
-    raise InvalidEventError, "Event #{event} not found." if !events.key?(event)
+    raise InvalidEventError, "Event #{event} not found." unless events.key?(event)
 
     events[event].key?(state)
   end
