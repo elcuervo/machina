@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 class Machina
-  attr_reader :state
+  InvalidEventError = Class.new(StandardError)
+
+  attr_reader :state, :events
 
   def initialize(initial_state)
     @state = initial_state
@@ -9,7 +11,9 @@ class Machina
   end
 
   def trigger(event, *args)
-    Array(@events[event][state]).each do |candidate_state|
+    return if !trigger?(event)
+
+    Array(events[event][state]).each do |candidate_state|
       begin
         self.when[candidate_state].call(*args)
       rescue StandardError
@@ -22,6 +26,16 @@ class Machina
     on[event].call(*args)
   end
 
+  def trigger!(event, *args)
+    raise InvalidEventError, event if !trigger?(event)
+
+    trigger(event, *args)
+  end
+
+  def trigger?(event)
+    events[event].key?(state)
+  end
+
   def on
     @on ||= Hash.new { |h, k| h[k] = ->(*args) {} }
   end
@@ -31,6 +45,6 @@ class Machina
   end
 
   def []=(key, states)
-    @events[key] = states
+    events[key] = states
   end
 end

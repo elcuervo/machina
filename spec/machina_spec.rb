@@ -45,7 +45,7 @@ describe Machina do
     assert_equal true, post.published
   end
 
-  it "trigger!" do
+  it "stops on error" do
     fsm.when[:stop] = -> { raise }
 
     fsm[:act] = {
@@ -55,5 +55,17 @@ describe Machina do
     fsm.trigger(:act)
 
     assert_equal :b, fsm.state
+  end
+
+  it "trigger!" do
+    fsm[:one] = {
+      :not_start => :reset
+    }
+
+    assert_raises Machina::InvalidEventError do
+      fsm.trigger!(:one)
+    end
+
+    assert_equal :start, fsm.state
   end
 end
