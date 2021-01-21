@@ -62,9 +62,8 @@ describe Machina do
       :not_start => :reset
     }
 
-    assert_raises Machina::InvalidEventError do
-      fsm.trigger!(:one)
-    end
+    assert_raises(Machina::InvalidStateChangeError) { fsm.trigger!(:one) }
+    assert_raises(Machina::InvalidEventError)       { fsm.trigger!(:two) }
 
     assert_equal :start, fsm.state
   end

@@ -2,6 +2,7 @@
 
 class Machina
   InvalidEventError = Class.new(StandardError)
+  InvalidStateChangeError = Class.new(StandardError)
 
   attr_reader :state, :events
 
@@ -27,12 +28,14 @@ class Machina
   end
 
   def trigger!(event, *args)
-    raise InvalidEventError, event if !trigger?(event)
+    raise InvalidStateChangeError, "Event #{event} missing #{state} step" if !trigger?(event)
 
     trigger(event, *args)
   end
 
   def trigger?(event)
+    raise InvalidEventError, "Event #{event} not found." if !events.key?(event)
+
     events[event].key?(state)
   end
 
