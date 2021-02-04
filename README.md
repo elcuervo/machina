@@ -14,6 +14,8 @@ fsm[:confirm] = {
   :unconfirmed => [:welcome_email, :enable_account, :confirmed],
 }
 
+fsm.on[:confirm] = -> (user) { puts "Starting confirmation process for #{user.id}." }
+
 fsm.state # => :unconfirmed
 fsm.trigger!(:confirm, user)
 fsm.state # => :confirmed
