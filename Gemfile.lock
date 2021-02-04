@@ -1,0 +1,17 @@
+PATH
+  remote: .
+  specs:
+    machina (0.0.1)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  machina!
+
+BUNDLED WITH
+   1.17.2
