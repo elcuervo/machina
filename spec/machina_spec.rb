@@ -1,9 +1,10 @@
 require "spec_helper"
 
+
+Post = Struct.new(:title, :notified, :published)
+
 describe Machina do
   attr_reader :fsm
-
-  Post = Struct.new(:title, :notified, :published)
 
   before { @fsm = Machina.new(:start) }
 
