@@ -4,6 +4,8 @@ class Machina
   InvalidEventError = Class.new(StandardError)
   InvalidStateChangeError = Class.new(StandardError)
 
+  EVENT = -> (h, k) { h[k] = ->(*args) {} }
+
   attr_reader :state, :events
 
   def initialize(initial_state)
@@ -40,11 +42,11 @@ class Machina
   end
 
   def on
-    @on ||= Hash.new { |h, k| h[k] = ->(*args) {} }
+    @on ||= Hash.new(&EVENT)
   end
 
   def when
-    @when ||= Hash.new { |h, k| h[k] = ->(*args) {} }
+    @when ||= Hash.new(&EVENT)
   end
 
   def []=(key, states)
